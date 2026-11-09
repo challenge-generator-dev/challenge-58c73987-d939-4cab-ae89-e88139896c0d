@@ -1,0 +1,313 @@
+# Version control
+.git
+.gitignore
+
+# Terraform state and logs
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+.terraform/
+*.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation (not needed in container)
+*.md
+docs/
+README*
+LICENSE
+
+# CI/CD configuration files (not needed in container)
+.github/
+.gitlab-ci.yml
+azure-pipelines.yml
+Jenkinsfile
+
+# Scripts (run from host, not in container)
+scripts/
+
+# Test files
+*_test.go
+*_test.py
+test/
+tests/
+*.test
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Secrets and credentials (should never be in image)
+*.pem
+*.key
+*.crt
+credentials.json
+secrets/
+.env
+.env.*
+
+# Build artifacts from other platforms
+target/
+dist/
+build/
+node_modules/
+"// === ARCHIVO: sonar-project.properties ===
+# Configuration for SonarCloud static analysis
+# Project identification
+sonar.projectKey=fintech-notifications-service
+sonar.organization=fintech-devops
+
+# Project metadata
+sonar.projectName=Notifications Service Infrastructure
+sonar.projectVersion=1.0.0
+sonar.description=Infrastructure as Code and CI/CD pipeline for Notifications Service
+
+# Source code configuration
+sonar.sources=.
+sonar.exclusions=**/*.md,**/docs/**,.git/**,.github/**,scripts/**,environments/**
+
+# Terraform analysis support
+sonar.terraform.module.handling=standard
+sonar.terraform.module.file.patterns=modules/**/*.tf
+
+# Dockerfile analysis
+sonar.dockerfile.filePatterns=Dockerfile
+
+# YAML pipeline analysis
+sonar.yaml.file.patterns=.github/workflows/*.yml,azure-pipelines.yml
+
+# Code coverage (if available)
+sonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+sonar.coverage.reports.path=target/site/coverage/coverage.xml
+
+# Quality gates configuration
+sonar.qualitygate.wait=true
+sonar.qualitygate.timeout=300
+
+# Analysis scope
+sonar.inclusions=**/*.tf,**/*.yml,**/*.yaml,**/Dockerfile
+sonar.issues.console.threshold=Critical
+sonar.issues.console.highThreshold=0
+
+# Branch analysis configuration
+sonar.branch.target=main
+sonar.branch.name=${GITHUB_REF#refs/heads/}
+
+# Pull request analysis
+sonar.pullrequest.provider=github
+sonar.pullrequest.github.repository=${GITHUB_REPOSITORY}
+s
+# Security and vulnerability settings
+sonar.security.config.owasp=active
+sonar.security.config.sast=active
+
+# Technical debt configuration
+sonar.technicalDebt.developerSquare=Legacy
+sonar.technicalDebt.ratio="0.15"
+
+# Analysis mode
+sonar.analysis.mode=publish
+
+# Additional metadata
+sonar.links.homepage=https://github.com/fintech/notifications-service
+sonar.links.scm=github.com/fintech/notifications-service
+sonar.links.issue=https://github.com/fintech/notifications-service/issues
+"// === ARCHIVO: README.md ===
+# Notifications Service - Infrastructure as Code
+
+Este proyecto contiene la definición de infraestructura como código utilizando Terraform para el servicio de notificaciones de la plataforma fintech. La infraestructura incluye la configuración de recursos AWS necesarios y un pipeline de CI/CD seguro que integra análisis estático y escaneo de vulnerabilidades.
+
+## Arquitectura del Sistema
+
+El servicio de notificaciones se comunica con un proveedor externo para entregar mensajes a los usuarios finales. La infraestructura está diseñada para escalar automáticamente según la demanda y mantener altos estándares de seguridad en toda la cadena de suministro.
+
+### Componentes Principales
+
+La infraestructura se organiza en módulos reutilizables que definen diferentes componentes del sistema:
+
+- Módulo de notificaciones: Configura los recursos necesarios para el servicio de notificaciones incluyendo funciones Lambda, colas de mensajes y políticas de acceso.
+- Pipeline de CI/CD: Automatiza el build, test, análisis de seguridad y despliegue a diferentes ambientes.
+- Configuración de seguridad: Implementa escaneo de dependencias, análisis de imágenes Docker y escaneo de infraestructura como código.
+
+## Estructura del Proyecto
+
+```
+├── .github/workflows/     # Pipeline de CI/CD con GitHub Actions
+├── modules/               # Módulos reutilizables de Terraform
+│   └── notifications_service/
+├── environments/          # Configuración por ambiente
+│   ├── dev/
+│   └── prod/
+├── scripts/               # Scripts de automatización
+├── main.tf                # Configuración principal de Terraform
+├── variables.tf           # Definición de variables
+├── providers.tf           # Configuración de proveedores
+├── outputs.tf             # Outputs de la infraestructura
+├── Dockerfile             # Imagen Docker multi-stage
+└── sonar-project.properties  # Configuración de SonarCloud
+```
+
+## Requisitos Previos
+
+Para trabajar con este proyecto necesitas las siguientes herramientas instaladas en tu sistema:
+
+- Terraform versión 1.5.7 o superior
+- Docker versión 20.10 o superior
+- AWS CLI configurado con credenciales válidas
+- Git para control de versiones
+- Herramientas de línea de comandos estándar (bash, curl, jq)
+
+## Configuración Inicial
+
+### Variables de Entorno
+
+Configura las siguientes variables de entorno antes de ejecutar cualquier comando:
+
+```bash
+export AWS_REGION=us-east-1
+export AWS_PROFILE=default
+```
+
+### Credenciales de AWS
+
+Asegúrate de tener configuradas tus credenciales de AWS mediante uno de los métodos siguientes:
+
+- Variables de entorno AWS_ACCESS_KEY_ID y AWS_SECRET_ACCESS_KEY
+- Archivo de credenciales ~/.aws/credentials
+- Roles de IAM con permisos apropiados
+
+### Inicialización de Terraform
+
+Para descargar los proveedores y preparar el backend de estado, ejecuta:
+
+```bash
+terraform init -backend=false
+```
+
+El flag -backend=false se usa para desarrollo local sin configurar un backend remoto. En producción, usa el backend configurado en main.tf.
+
+## Validación de la Infraestructura
+
+### Plan de Terraform
+
+Para ver los cambios que se aplicarían a la infraestructura:
+
+```bash
+terraform plan -var-file=environments/dev/terraform.tfvars
+```
+
+### Validación de Sintaxis
+
+Para validar la sintaxis de los archivos de Terraform:
+
+```bash
+terraform validate
+```
+
+### Formateo de Código
+
+Para asegurar que el código cumple con los estándares de formato:
+
+```bash
+terraform fmt -recursive
+```
+
+## Construcción de la Imagen Docker
+
+### Build de la Imagen
+
+Para construir la imagen Docker del servicio:
+
+```bash
+docker build -t notifications-service:local .
+```
+
+### Verificación de la Imagen
+
+Para verificar que la imagen se construyó correctamente:
+
+```bash
+docker run --rm notifications-service:local /app/healthcheck.sh
+```
+
+### Escaneo de Vulnerabilidades
+
+Para escanear la imagen en busca de vulnerabilidades usando Trivy:
+
+```bash
+trivy image --severity HIGH,CRITICAL notifications-service:local
+```
+
+## Pipeline de CI/CD
+
+### Stages del Pipeline
+
+El pipeline de CI/CD está compuesto por los siguientes stages:
+
+1. Build: Compila la aplicación y construye la imagen Docker.
+2. Test: Ejecuta pruebas unitarias y de integración.
+3. Security Scan: Realiza análisis estático con SonarCloud y escaneo de dependencias.
+4. Image Scan: Escanea la imagen Docker en busca de vulnerabilidades.
+5. Deploy: Despliega a los ambientes configurados según las políticas de calidad.
+
+### Ejecución del Pipeline
+
+El pipeline se ejecuta automáticamente cuando se realiza un push a las ramas principales o cuando se abre un pull request. También puede ejecutarse manualmente desde la interfaz de GitHub Actions.
+
+### Gates de Calidad
+
+El pipeline incluye gates de calidad que deben pasar antes de permitir el despliegue:
+
+- Cobertura de código mínima: 80%
+- Ninguna vulnerabilidad crítica o de alto nivel en el código
+- Ninguna vulnerabilidad crítica o alta en las dependencias
+- Ninguna vulnerabilidad crítica o alta en la imagen Docker
+- Análisis estático sin bloqueos críticos
+
+## Gestión de Secretos
+
+**IMPORTANTE**: Nunca almacenes secretos en el repositorio. Usa las siguientes prácticas:
+
+- AWS Secrets Manager para almacenar claves de API y credenciales
+- Variables de entorno para configuración sensible
+- GitHub Secrets para el pipeline de CI/CD
+- Terraform Vault o AWS Parameter Store para secretos en tiempo de ejecución
+
+## Despliegue a Producción
+
+El despliegue a producción requiere:
+
+1. Que todos los gates de calidad pasen en el ambiente de staging
+2. Aprobación manual de un usuario autorizado
+3. Que el escaneo de seguridad no encuentre vulnerabilidades críticas
+4. Que los logs de aplicación no muestren errores críticos
+
+## Monitoreo y Observabilidad
+
+El servicio está configurado para exportar métricas a Prometheus y logs a CloudWatch. Los dashboards de Grafana están disponibles en el espacio de trabajo de monitoreo para visualizar el rendimiento y la salud del servicio.
+
+## Contribución
+
+Para contribuir al proyecto:
+
+1. Crea una rama feature/ desde develop
+2. Realiza tus cambios siguiendo las convenciones del proyecto
+3. Ejecuta los scripts de validación localmente
+4. Abre un pull request con los cambios
+5. Espera la revisión y aprobación del equipo
+6. Merge después de pasar todos los gates de calidad
+
+## Licencia
+
+Este proyecto es propiedad de la empresa fintech y su uso está restringido a personal autorizado.
